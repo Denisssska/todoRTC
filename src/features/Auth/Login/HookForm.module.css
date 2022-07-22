@@ -1,0 +1,11 @@
+.form{
+    display: block;
+    margin:5%;
+}
+.form div{
+    margin: 2% ;
+
+}
+.form div span{
+    margin-left: 10px;
+}

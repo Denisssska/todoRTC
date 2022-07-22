@@ -1,0 +1,21 @@
+.container{
+    margin:8px;
+
+}
+.name{
+  display: flex;
+    justify-content: space-between;
+    background-color: blue;
+
+}
+.name span{
+    min-width: 70%;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: whitesmoke;
+    font-family: "Calibri Light", sans-serif
+}
+.delete:hover{
+    color: orange;
+}
