@@ -2,6 +2,7 @@ import {PayLoadTodolistType, todolistAPI, TodolistsType} from "../../../API/Todo
 import {AppThunk, StateAppType} from "../../../state/redux-store";
 import {changeProcessAC, loadingErrorAC, setErrAC} from "../../../app/AppReducer";
 import {handleServerAppError, handleServerNetworkError} from "../../../components/ErrorSnackBar/HandleError";
+import {Dispatch} from "@reduxjs/toolkit";
 
 
 const REMOVE_TODOLIST = "remove todolist";
@@ -70,36 +71,36 @@ export const todolistReducer = (state: InitialTodolistStateType = initialState, 
     }
 }
 
-export const getTodolistsTC = (): AppThunk => (dispatch) => {
-    dispatch(changeProcessAC(true))
+export const getTodolistsTC = () => (dispatch:Dispatch) => {
+    dispatch(changeProcessAC({process:true}))
     todolistAPI.getTodolists()
         .then((data) => {
                 if (data.data) {
                     dispatch(getTodolistAC(data.data))
-                    dispatch(loadingErrorAC(true))
-                    dispatch(setErrAC('Successfully'))
+                    dispatch(loadingErrorAC({loading:true}))
+                    dispatch(setErrAC({error:'Successfully'}))
                 } else {
-                    dispatch(loadingErrorAC(true))
+                    dispatch(loadingErrorAC({loading:true}))
                     dispatch(setErrAC(data.request.error))
                 }
             }
         )
         .catch((e) => {
-                dispatch(loadingErrorAC(true))
+                dispatch(loadingErrorAC({loading:true}))
                 handleServerNetworkError(e, dispatch)
             }
         )
-        .finally(() => dispatch(changeProcessAC(false)))
+        .finally(() => dispatch(changeProcessAC({process:false})))
 }
-export const addTodolistsTC = (title: string): AppThunk => (dispatch) => {
-    dispatch(changeProcessAC(true))
+export const addTodolistsTC = (title: string) => (dispatch:Dispatch) => {
+    dispatch(changeProcessAC({process:true}))
     todolistAPI.createTodolist(title)
         .then((data) => {
                 console.log(data)
                 if (data.data.resultCode === 0) {
                     data.data.data.item && dispatch(addTodolistAC(data.data.data.item))
-                    dispatch(loadingErrorAC(true))
-                    dispatch(setErrAC('Successfully'))
+                    dispatch(loadingErrorAC({loading:true}))
+                    dispatch(setErrAC({error:'Successfully'}))
                 } else {
                     handleServerAppError(data.data, dispatch)
                 }
@@ -109,17 +110,17 @@ export const addTodolistsTC = (title: string): AppThunk => (dispatch) => {
                 handleServerNetworkError(e, dispatch)
             }
         )
-        .finally(() => dispatch(changeProcessAC(false)))
+        .finally(() => dispatch(changeProcessAC({process:false})))
 }
-export const removeTodolistTC = (todolistId: string): AppThunk => (dispatch) => {
-    dispatch(changeProcessAC(true))
+export const removeTodolistTC = (todolistId: string) => (dispatch:Dispatch) => {
+    dispatch(changeProcessAC({process:true}))
     dispatch(updateTodolistAC(todolistId, {isDisabled: true}))
     todolistAPI.deleteTodolist(todolistId)
         .then((data) => {
                 if (data.data.resultCode === 0) {
                     dispatch(removeTodolistAC(todolistId))
-                    dispatch(loadingErrorAC(true))
-                    dispatch(setErrAC('Successfully'))
+                    dispatch(loadingErrorAC({loading:true}))
+                    dispatch(setErrAC({error:'Successfully'}))
                 } else {
                     handleServerAppError(data.data, dispatch)
                 }
@@ -129,10 +130,10 @@ export const removeTodolistTC = (todolistId: string): AppThunk => (dispatch) => 
                 handleServerNetworkError(e, dispatch)
             }
         )
-        .finally(() => dispatch(changeProcessAC(false)))
+        .finally(() => dispatch(changeProcessAC({process:false})))
 }
-export const updateTodolistTC = (todolistId: string, item: PayLoadTodolistType): AppThunk =>
-    (dispatch, getState: () => StateAppType) => {
+export const updateTodolistTC = (todolistId: string, item: PayLoadTodolistType) =>
+    (dispatch:Dispatch, getState: () => StateAppType) => {
         const state = getState()
         const newTodolist = state.todolist.todolists.find(item => item.id === todolistId)
         if (!newTodolist) return
@@ -141,12 +142,12 @@ export const updateTodolistTC = (todolistId: string, item: PayLoadTodolistType):
             isDisabledTask: newTodolist.isDisabled,
             filter: newTodolist.filter, ...item
         } as PayLoadTodolistType
-        dispatch(changeProcessAC(true))
+        dispatch(changeProcessAC({process:true}))
         todolistAPI.updateTodolist(todolistId, payLoad).then(data => {
                 if (data.data.resultCode === 0) {
                     dispatch(updateTodolistAC(todolistId, payLoad))
-                    dispatch(loadingErrorAC(true))
-                    dispatch(setErrAC('Successfully'))
+                    dispatch(loadingErrorAC({loading:true}))
+                    dispatch(setErrAC({error:'Successfully'}))
                 } else {
                     handleServerAppError(data.data, dispatch)
                 }
@@ -155,6 +156,6 @@ export const updateTodolistTC = (todolistId: string, item: PayLoadTodolistType):
                 handleServerNetworkError(e, dispatch)
             }
         )
-            .finally(() => dispatch(changeProcessAC(false)))
+            .finally(() => dispatch(changeProcessAC({process:false})))
     }
 

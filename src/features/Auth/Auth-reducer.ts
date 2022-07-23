@@ -1,62 +1,56 @@
 import {authApi, AuthDataType, AuthPayload} from "../../API/AuthApi";
-import {AppThunk} from "../../state/redux-store";
+
 import {changeInitializedAC, changeProcessAC, loadingErrorAC, setErrAC} from "../../app/AppReducer";
-import { handleServerNetworkError} from "../../components/ErrorSnackBar/HandleError";
+import {handleServerNetworkError} from "../../components/ErrorSnackBar/HandleError";
+import {createSlice, Dispatch, PayloadAction} from "@reduxjs/toolkit";
+import { WritableDraft } from "immer/dist/internal";
 
-
-
-
-export type ActionsAuthType = ReturnType<typeof getMeAuthAC> | ReturnType<typeof changeAuthAC>
-
-type InitialDataStateType = typeof initialState
-const GET_DATA = 'GET_DATA';
-const CHANGE_AUTH = 'CHANGE_AUTH'
 const initialState = {
     data: {} as AuthDataType,
     isAuth: false
 }
-const getMeAuthAC = (data: AuthDataType, isAuth: boolean) => ({type: 'GET_DATA', data, isAuth}) as const
-export const changeAuthAC = (isAuth: boolean) => ({type: 'CHANGE_AUTH', isAuth}) as const
-export const authReducer = (state: InitialDataStateType = initialState, action: ActionsAuthType): InitialDataStateType => {
-    switch (action.type) {
-        case GET_DATA: {
-            return {
-                ...state, data:{...action.data}, isAuth: action.isAuth
-            }
+const slice = createSlice({
+    name: 'auth',
+    initialState: initialState,
+    reducers: {
+        getMeAuthAC(state, action: PayloadAction<{ data: WritableDraft<AuthDataType>,isAuth: boolean }>) {
+            state.isAuth = action.payload.isAuth
+            state.data = action.payload.data
+        },
+        changeAuthAC(state,action:PayloadAction<{isAuth:boolean}>){
+            state.isAuth = action.payload.isAuth
         }
-        case CHANGE_AUTH: {
-            return {
-                ...state, isAuth: action.isAuth
-            }
-        }
-        default:
-            return state
     }
-}
-export const getDataTC = (): AppThunk => (dispatch) => {
+})
+export const authReducer =slice.reducer
+export const {getMeAuthAC,changeAuthAC} = slice.actions
+
+
+export const getDataTC = ()=> (dispatch:Dispatch) => {
     authApi.getMeAuth()
         .then(data => {
                 console.log(data.data.data)
                 if (data.data.resultCode === 0) {
-                    dispatch(getMeAuthAC(data.data.data, true))
+                    dispatch(getMeAuthAC({data:data.data.data, isAuth:true}))
                 }
-            dispatch(changeInitializedAC(true))
+                dispatch(changeInitializedAC({initialized:true}))
             }
         )
         .catch(e => {
                 handleServerNetworkError(e, dispatch)
             }
         )
-        .finally(()=>dispatch(changeProcessAC(false)))
+        .finally(() => dispatch(changeProcessAC({process:false})))
 }
-export const loginTC = (payLoad: AuthPayload): AppThunk => (dispatch) => {
-    dispatch(changeProcessAC(true))
+export const loginTC = (payLoad: AuthPayload) => (dispatch:Dispatch) => {
+    dispatch(changeProcessAC({process:true}))
     authApi.loginUser(payLoad)
         .then(data => {
                 if (data.data.resultCode === 0) {
+                    // @ts-ignore
                     dispatch(getDataTC())
-                    dispatch(loadingErrorAC(true))
-                    dispatch(setErrAC('Successfully'))
+                    dispatch(loadingErrorAC({loading:true}))
+                    dispatch(setErrAC({error:'Successfully'}))
                 }
             }
         )
@@ -64,16 +58,16 @@ export const loginTC = (payLoad: AuthPayload): AppThunk => (dispatch) => {
                 handleServerNetworkError(e, dispatch)
             }
         )
-        .finally(()=>dispatch(changeProcessAC(false)))
+        .finally(() => dispatch(changeProcessAC({process:false})))
 }
-export const logOutTC = (): AppThunk => (dispatch) => {
-    dispatch(changeProcessAC(true))
+export const logOutTC = () => (dispatch:Dispatch) => {
+    dispatch(changeProcessAC({process:true}))
     authApi.logOut()
         .then(data => {
                 if (data.data.resultCode === 0) {
-                    dispatch(getMeAuthAC({login: null, email: null, id: null}, false))
-                    dispatch(loadingErrorAC(true))
-                    dispatch(setErrAC('Successfully'))
+                    dispatch(getMeAuthAC({data:{login: null, email: null, id: null}, isAuth:false}))
+                    dispatch(loadingErrorAC({loading:true}))
+                    dispatch(setErrAC({error:'Successfully'}))
                 }
             }
         )
@@ -81,5 +75,5 @@ export const logOutTC = (): AppThunk => (dispatch) => {
                 handleServerNetworkError(e, dispatch)
             }
         )
-        .finally(()=>dispatch(changeProcessAC(false)))
+        .finally(() => dispatch(changeProcessAC({process:false})))
 }

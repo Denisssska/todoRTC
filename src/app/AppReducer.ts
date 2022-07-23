@@ -1,48 +1,31 @@
-const IS_LOADING = 'IS_LOADING';
-const ERROR = 'ERROR';
-const IS_PROCESS = 'IS_PROCESS';
-const IS_INITIALIZED='IS_INITIALIZED'
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+
 const initialState = {
     loading: false,
     error: null,
     process: true,
-    initializedApp:false
-
+    initializedApp: false
 }
-export type errorAppType = typeof initialState
-
-export type ErrorActionType = ReturnType<typeof loadingErrorAC>
-    | ReturnType<typeof setErrAC>
-    | ReturnType<typeof changeProcessAC>
-    | ReturnType<typeof changeInitializedAC>
-
-export const loadingErrorAC = (loading: boolean) => ({type: IS_LOADING, loading}) as const
-export const setErrAC = (error: string | null) => ({type: ERROR, error}) as const
-export const changeProcessAC = (process: boolean) => ({type: IS_PROCESS, process}) as const
-export const changeInitializedAC = (initialized: boolean) => ({type: IS_INITIALIZED, initialized}) as const
-
-export const appReducer = (state: errorAppType = initialState, action: ErrorActionType): errorAppType => {
-
-    switch (action.type) {
-        case IS_LOADING: {
-            return {...state, loading: action.loading}
+const slice = createSlice({
+    name: 'app',
+    initialState: initialState,
+    reducers: {
+        loadingErrorAC(state, action: PayloadAction<{ loading: boolean }>) {
+            state.loading = action.payload.loading
+        },
+        setErrAC(state, action: PayloadAction<{ error: string | null }>) {
+            // @ts-ignore
+            state.error = action.payload.error
+        },
+        changeProcessAC(state,action:PayloadAction<{process:boolean}>){
+            state.process =action.payload.process
+        },
+        changeInitializedAC(state,action:PayloadAction<{initialized:boolean}>){
+            state.initializedApp= action.payload.initialized
         }
-        case ERROR: {
-
-
-            return <errorAppType>{...state, error: action.error}
-        }
-        case IS_PROCESS:{
-            return {...state,process: action.process}
-        }
-        case IS_INITIALIZED:{
-            return {
-                ...state,initializedApp:action.initialized
-            }
-        }
-        default:
-            return state
     }
-}
+})
+export const appReducer = slice.reducer
+export const {loadingErrorAC,setErrAC,changeProcessAC,changeInitializedAC} = slice.actions
 
     
