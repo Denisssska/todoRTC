@@ -1,17 +1,18 @@
 import * as React from 'react';
 
 import Snackbar from '@mui/material/Snackbar';
-import {useAppDispatch, useAppSelector} from "../../hooks/hooks";
+import { useAppSelector} from "../../hooks/hooks";
 import {loadingErrorAC} from "../../app/AppReducer";
  import {Alert} from "@mui/material";
+import {useDispatch} from "react-redux";
 
 
 export const PositionedSnackbar=() =>{
-const dispatch = useAppDispatch()
+const dispatch = useDispatch()
     const error = useAppSelector(state=> state.application.error)
     const loading = useAppSelector(state=> state.application.loading)
     const handleClose = () => {
-dispatch(loadingErrorAC(false))
+dispatch(loadingErrorAC({loading:false}))
     };
 
     return (

@@ -1,5 +1,5 @@
 import {todolistReducer, TodolistsActionType} from "../features/todolistList/todolist/todolistReducer";
-import {taskReducer, TasksActionsType} from "../features/todolistList/todolist/task/TaskReducer";
+import {taskReducer} from "../features/todolistList/todolist/task/TaskReducer";
 import { combineReducers} from "redux";
 import thunk, {ThunkAction, ThunkDispatch} from "redux-thunk";
 import {appReducer} from "../app/AppReducer";
@@ -18,7 +18,7 @@ const store =configureStore({
     middleware: getDefaultMiddleware => getDefaultMiddleware().prepend(thunk)
 })
 export default store
-export type AppActionsType = TodolistsActionType | TasksActionsType
+export type AppActionsType = TodolistsActionType
 export type AppDispatch = ThunkDispatch<RootState,
     unknown,
     AppActionsType>
