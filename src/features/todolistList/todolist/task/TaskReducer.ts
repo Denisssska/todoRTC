@@ -1,16 +1,10 @@
-import { removeTodolistAC} from "../todolistReducer";
+
 import {PayLoadType, tasksAPI, TaskType} from "../../../../API/TasksApi";
 import { StateAppType} from "../../../../state/redux-store";
 import {changeProcessAC, loadingErrorAC, setErrAC} from "../../../../app/AppReducer";
 import {handleServerAppError, handleServerNetworkError} from "../../../../components/ErrorSnackBar/HandleError";
 import {createSlice, Dispatch, PayloadAction} from "@reduxjs/toolkit";
 
-// const REMOVE_TASK = 'remove task';
-// const ADD_TASK = "add task";
-// const GET_TASK = "GET_TASK";
-// const UPDATE_TASK = 'UPDATE_TASK';
-//
-// export type InitialTaskStateType = typeof initialTaskState
 
 let initialTaskState = {tasks: [] as Array<TaskType>}
 
@@ -18,7 +12,6 @@ const slice = createSlice({
     name:'task',
     initialState:initialTaskState,
     reducers:{
-        
         removeTaskAC(state,action:PayloadAction<{id:string,todolistId:string}>){
           const index = state.tasks.findIndex(item=>item.id===action.payload.id)
             if (index>-1){state.tasks.splice(index,1)}
@@ -31,61 +24,14 @@ const slice = createSlice({
         },
         updateTaskAC(state,action:PayloadAction<{taskId: string, payLoad: PayLoadType, todolistId: string}>){
             const index = state.tasks.findIndex(item=>item.id===action.payload.taskId)
-            if (index> -1){ // @ts-ignore
-                state.tasks=action.payload.payLoad}
-            // const { a, b, c, d } = action.payload
-            // return {
-            //     ...state,
-            //     a,
-            //     b,
-            //     c,
-            //     d,
-            // }
-        },
-
+            if (index> -1){
+                state.tasks[index]={...state.tasks[index],...action.payload.payLoad}
+            }
+        }
     }
 })
 export const taskReducer = slice.reducer
 export const {removeTaskAC,getTaskAC,addTaskAC,updateTaskAC} = slice.actions
-// export type TasksActionsType = ReturnType<typeof removeTaskAC>
-//     | ReturnType<typeof addTaskAC>
-//     | ReturnType<typeof updateTaskAC>
-//
-//     | ReturnType<typeof removeTodolistAC>
-//     | ReturnType<typeof getTaskAC>
-//
-//
-// export const removeTaskAC = (id: string, todolistId: string) => ({type: 'remove task', id, todolistId}) as const
-// export const getTaskAC = (data: Array<TaskType>) => ({type: 'GET_TASK', data}) as const
-// export const addTaskAC = (item: TaskType, todolistId: string) => ({type: 'add task', item, todolistId}) as const
-// export const updateTaskAC = (taskId: string, payLoad: PayLoadType, todolistId: string) => ({
-//     type: "UPDATE_TASK",
-//     taskId,
-//     payLoad,
-//     todolistId
-// }) as const
-
-// export const taskReducer = (state: InitialTaskStateType = initialTaskState, action: AppActionsType): InitialTaskStateType => {
-//     switch (action.type) {
-//         case GET_TASK: {
-//             return {...state, tasks: [...state.tasks, ...action.data]}
-//         }
-//         case  REMOVE_TASK: {
-//             return {...state, tasks: state.tasks.filter((item) => item.id !== action.id)}
-//         }
-//         case ADD_TASK: {
-//             return {...state, tasks: [{...action.item, isDisabledTask: false}, ...state.tasks]}
-//         }
-//         case UPDATE_TASK: {
-//             return {
-//                 ...state, tasks: state.tasks.map(item => item.id === action.taskId ?
-//                     {...item, ...action.payLoad} : item)
-//             }
-//         }
-//         default:
-//             return state
-//     }
-// }
 
 export const getTaskTC = (todolistId: string) => (dispatch:Dispatch) => {
     dispatch(changeProcessAC({process:true}))
