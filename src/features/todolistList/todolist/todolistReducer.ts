@@ -2,67 +2,47 @@ import {PayLoadTodolistType, todolistAPI, TodolistsType} from "../../../API/Todo
 import {StateAppType} from "../../../state/redux-store";
 import {changeProcessAC, loadingErrorAC, setErrAC} from "../../../app/AppReducer";
 import {handleServerAppError, handleServerNetworkError} from "../../../components/ErrorSnackBar/HandleError";
-import {Dispatch} from "@reduxjs/toolkit";
+import {createSlice, Dispatch, PayloadAction} from "@reduxjs/toolkit";
 
 
-const REMOVE_TODOLIST = "remove todolist";
-const ADD_TODOLIST = "add todolist";
-const GET_ARRAY = 'GET_ARRAY';
-
-const UPDATE_TODOLIST = 'UPDATE_TODOLIST'
 const initialState = {
     todolists: [] as Array<TodolistsType>
 }
-
-export type InitialTodolistStateType = typeof initialState
-
-export type TodolistsActionType = ReturnType<typeof removeTodolistAC>
-    | ReturnType<typeof addTodolistAC>
-    | ReturnType<typeof getTodolistAC>
-    | ReturnType<typeof updateTodolistAC>
-
-export const getTodolistAC = (data: Array<TodolistsType>) => ({type: GET_ARRAY, data}) as const
-export const removeTodolistAC = (todolistId: string) => ({type: "remove todolist", todolistId}) as const
-export const updateTodolistAC = (todolistId: string, payLoad: PayLoadTodolistType) => ({
-    type: UPDATE_TODOLIST,
-    todolistId,
-    payLoad
-}) as const
-export const addTodolistAC = (todolist: TodolistsType) => ({
-    type: "add todolist",
-    todolist
-}) as const
-
-export const todolistReducer = (state: InitialTodolistStateType = initialState, action: TodolistsActionType): InitialTodolistStateType => {
-
-    switch (action.type) {
-        case GET_ARRAY: {
-            return {...state, todolists: [...action.data]}
-        }
-        case REMOVE_TODOLIST: {
-            return {...state, todolists: state.todolists.filter((el) => el.id !== action.todolistId)}
-        }
-        case ADD_TODOLIST: {
-            return {...state, todolists: [{...action.todolist, filter: 'all', isDisabled: false}, ...state.todolists]}
-
-        }
-        case UPDATE_TODOLIST: {
-            return {
-                ...state, todolists: state.todolists.map(item => item.id === action.todolistId ?
-                    {...item, ...action.payLoad} : item)
+const slice = createSlice({
+    name: 'todolist',
+    initialState: initialState,
+    reducers: {
+        getTodolistAC(state, action: PayloadAction<{ data: Array<TodolistsType> }>) {
+            state.todolists.push(...action.payload.data)
+        },
+        addTodolistAC(state, action: PayloadAction<{ todolist: TodolistsType }>) {
+            state.todolists.push(action.payload.todolist)
+        },
+        updateTodolistAC(state, action: PayloadAction<{ todolistId: string, payLoad: PayLoadTodolistType }>) {
+            const index = state.todolists.findIndex(item => item.id === action.payload.todolistId)
+            if (index > -1) {
+                state.todolists[index] = {...state.todolists[index], ...action.payload.payLoad}
+            }
+        },
+        removeTodolistAC(state, action: PayloadAction<{ todolistId: string }>) {
+            const index = state.todolists.findIndex(item => item.id === action.payload.todolistId)
+            if (index > -1) {
+                state.todolists.splice(index, 1)
             }
         }
-        default:
-            return state
     }
-}
+})
+
+export const todolistReducer = slice.reducer
+export const {getTodolistAC, removeTodolistAC, updateTodolistAC, addTodolistAC} = slice.actions
+
 
 export const getTodolistsTC = () => (dispatch: Dispatch) => {
     dispatch(changeProcessAC({process: true}))
     todolistAPI.getTodolists()
         .then((data) => {
                 if (data.data) {
-                    dispatch(getTodolistAC(data.data))
+                    dispatch(getTodolistAC({data: data.data}))
                     dispatch(loadingErrorAC({loading: true}))
                     dispatch(setErrAC({error: 'Successfully'}))
                 } else {
@@ -84,7 +64,7 @@ export const addTodolistsTC = (title: string) => (dispatch: Dispatch) => {
         .then((data) => {
                 console.log(data)
                 if (data.data.resultCode === 0) {
-                    data.data.data.item && dispatch(addTodolistAC(data.data.data.item))
+                    data.data.data.item && dispatch(addTodolistAC({todolist: data.data.data.item}))
                     dispatch(loadingErrorAC({loading: true}))
                     dispatch(setErrAC({error: 'Successfully'}))
                 } else {
@@ -100,11 +80,11 @@ export const addTodolistsTC = (title: string) => (dispatch: Dispatch) => {
 }
 export const removeTodolistTC = (todolistId: string) => (dispatch: Dispatch) => {
     dispatch(changeProcessAC({process: true}))
-    dispatch(updateTodolistAC(todolistId, {isDisabled: true}))
+    dispatch(updateTodolistAC({todolistId, payLoad: {isDisabled: true}}))
     todolistAPI.deleteTodolist(todolistId)
         .then((data) => {
                 if (data.data.resultCode === 0) {
-                    dispatch(removeTodolistAC(todolistId))
+                    dispatch(removeTodolistAC({todolistId}))
                     dispatch(loadingErrorAC({loading: true}))
                     dispatch(setErrAC({error: 'Successfully'}))
                 } else {
@@ -131,7 +111,7 @@ export const updateTodolistTC = (todolistId: string, item: PayLoadTodolistType) 
         dispatch(changeProcessAC({process: true}))
         todolistAPI.updateTodolist(todolistId, payLoad).then(data => {
                 if (data.data.resultCode === 0) {
-                    dispatch(updateTodolistAC(todolistId, payLoad))
+                    dispatch(updateTodolistAC({todolistId, payLoad}))
                     dispatch(loadingErrorAC({loading: true}))
                     dispatch(setErrAC({error: 'Successfully'}))
                 } else {
