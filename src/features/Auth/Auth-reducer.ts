@@ -5,7 +5,7 @@ import {handleServerNetworkError} from "../../components/ErrorSnackBar/HandleErr
 import {createSlice, Dispatch, PayloadAction} from "@reduxjs/toolkit";
 import {WritableDraft} from "immer/dist/internal";
 
-const initialState = {
+ const initialState = {
     data: {} as AuthDataType,
     isAuth: false
 }
