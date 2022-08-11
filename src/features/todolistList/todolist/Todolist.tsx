@@ -31,14 +31,14 @@ export const Todolist = React.memo((props: PropsType) => {
         if (TaskState.length) return;
         dispatch((getTaskTC(props.todolistId)))
         return console.log('dead useEffect')
-    }, [dispatch, props.todolistId])
+    }, [TaskState.length, dispatch, props.todolistId])
 
     const changeFilter = useCallback((value: FilterValuesType) => {
         dispatch(updateTodolistTC({todolistId: props.todolistId, item: {filter: value}}))
     }, [dispatch, props.todolistId]);
 
     const addTask = useCallback((title: string) => {
-        dispatch(addTaskTC(title, props.todolistId))
+        dispatch(addTaskTC({title, todolistId: props.todolistId}))
 
     }, [dispatch, props.todolistId]);
 

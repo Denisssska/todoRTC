@@ -17,21 +17,21 @@ export const Task = React.memo((props: TaskPropsType) => {
     const dispatch = useAppDispatch();
 
     const removeTask = useCallback(() => {
-        dispatch(removeTaskTC(props.todolistId, props.task.id))
-    }, [props.todolistId, props.task.id]);
+        dispatch(removeTaskTC({todolistId: props.todolistId, taskId: props.task.id}))
+    }, [dispatch, props.todolistId, props.task.id]);
 
     let status: number;
     props.task.status === 0 ? status = 1 : status = 0
 
     const changeStatus = useCallback(() => {
-        dispatch(updateTaskTC(props.task.id, {status}, props.todolistId))
-    }, [props.task.id, props.task.status, props.todolistId]);
+        dispatch(updateTaskTC({taskId: props.task.id, item: {status}, todolistId: props.todolistId}))
+    }, [dispatch, props.task.id, props.todolistId, status]);
 
     const onChangeText = useCallback((title: string) => {
 
-        dispatch(updateTaskTC(props.task.id, {title}, props.todolistId))
+        dispatch(updateTaskTC({taskId: props.task.id, item: {title}, todolistId: props.todolistId}))
 
-    }, [props.task.id, props.todolistId]);
+    }, [dispatch, props.task.id, props.todolistId]);
 
     return <div key={props.task.id} className={props.task.status === 1 ? "is-done" : ""}>
 
@@ -39,7 +39,7 @@ export const Task = React.memo((props: TaskPropsType) => {
                checked={!!props.task.status}
         />
         <EditableSpan title={props.task.title} onChange={(title) => onChangeText(title)}/>
-         <Button disabled={props.task.isDisabledTask} onClick={removeTask}>delete</Button>
+        <Button disabled={props.task.isDisabledTask} onClick={removeTask}>delete</Button>
     </div>
 });
 
