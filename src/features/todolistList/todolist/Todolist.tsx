@@ -17,7 +17,7 @@ type PropsType = {
     title: string
     filter: FilterValuesType
     todolistId: string
-    isDisabled:boolean
+    isDisabled: boolean
 }
 
 export const Todolist = React.memo((props: PropsType) => {
@@ -28,30 +28,28 @@ export const Todolist = React.memo((props: PropsType) => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if(TaskState.length)return;
+        if (TaskState.length) return;
         dispatch((getTaskTC(props.todolistId)))
         return console.log('dead useEffect')
-    }, [props.todolistId])
+    }, [dispatch, props.todolistId])
 
     const changeFilter = useCallback((value: FilterValuesType) => {
-        dispatch(updateTodolistTC(props.todolistId,{filter:value}))
-    }, [props.todolistId]);
+        dispatch(updateTodolistTC({todolistId: props.todolistId, item: {filter: value}}))
+    }, [dispatch, props.todolistId]);
 
     const addTask = useCallback((title: string) => {
         dispatch(addTaskTC(title, props.todolistId))
 
-    }, [props.todolistId]);
+    }, [dispatch, props.todolistId]);
 
     const removeTodolist = useCallback(() => {
         dispatch(removeTodolistTC(props.todolistId));
 
-    }, [props.todolistId]);
+    }, [dispatch, props.todolistId]);
 
     const changeTodolistTitle = useCallback((newText: string) => {
-        dispatch(updateTodolistTC(props.todolistId, {title:newText}))
-
-
-    }, [props.todolistId]);
+        dispatch(updateTodolistTC({todolistId: props.todolistId, item: {title: newText}}))
+    }, [dispatch, props.todolistId]);
     let tasksForTodolist = TaskState;
 
     if (props.filter === "active") {
@@ -64,12 +62,13 @@ export const Todolist = React.memo((props: PropsType) => {
 
     return <div className={c.container}>
         <div className={c.name}>
-           <EditableSpan title={props.title} onChange={(newText) => changeTodolistTitle(newText)}/>
+            <EditableSpan title={props.title} onChange={(newText) => changeTodolistTitle(newText)}/>
 
-            <Button className={c.button} disabled={props.isDisabled}  onClick={removeTodolist}><DeleteIcon  className={c.delete}  style={{color:'whitesmoke'}}/></Button>
+            <Button className={c.button} disabled={props.isDisabled} onClick={removeTodolist}><DeleteIcon
+                className={c.delete} style={{color: 'whitesmoke'}}/></Button>
         </div>
 
-        <AddFormItem  addItem={(title) => addTask(title)}/>
+        <AddFormItem addItem={(title) => addTask(title)}/>
 
         <div>
             {tasksForTodolist.map(item => {

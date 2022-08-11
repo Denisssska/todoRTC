@@ -17,15 +17,15 @@ const slice = createSlice({
             // @ts-ignore
             state.error = action.payload.error
         },
-        changeProcessAC(state,action:PayloadAction<{process:boolean}>){
-            state.process =action.payload.process
+        changeProcessAC(state, action: PayloadAction<{ process: boolean }>) {
+            state.process = action.payload.process
         },
-        changeInitializedAC(state,action:PayloadAction<{initialized:boolean}>){
-            state.initializedApp= action.payload.initialized
+        changeInitializedAC(state, action: PayloadAction<{ initialized: boolean }>) {
+            state.initializedApp = action.payload.initialized
         }
     }
 })
 export const appReducer = slice.reducer
-export const {loadingErrorAC,setErrAC,changeProcessAC,changeInitializedAC} = slice.actions
+export const {loadingErrorAC, setErrAC, changeProcessAC, changeInitializedAC} = slice.actions
 
     

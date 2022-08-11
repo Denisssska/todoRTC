@@ -7,11 +7,11 @@ export type TodolistsType = {
     filter: FilterValuesType
     addedDate: string
     order: number
-    isDisabled:boolean
+    isDisabled: boolean
 }
-export type PayLoadTodolistType={
-    title?:string
-    isDisabled?:boolean
+export type PayLoadTodolistType = {
+    title?: string
+    isDisabled?: boolean
     filter?: FilterValuesType
 }
 export type ResponseType<D = {}> = {
@@ -31,7 +31,7 @@ export const instance = axios.create({
 
 export const todolistAPI = {
     createTodolist(title: string) {
-        return instance.post<ResponseType<{item:TodolistsType}>>(`todo-lists`, {title: title})
+        return instance.post<ResponseType<{ item: TodolistsType }>>(`todo-lists`, {title: title})
             .then((res) => res)
     },
     getTodolists() {
@@ -42,7 +42,7 @@ export const todolistAPI = {
         return instance.delete<ResponseType>(`todo-lists/${todolistId}`)
         // .then((res) => res.data)
     },
-    updateTodolist(todolistId: string,payLoad:PayLoadTodolistType) {
+    updateTodolist(todolistId: string, payLoad: PayLoadTodolistType) {
         return instance.put<ResponseType>(`todo-lists/${todolistId}`, {...payLoad})
     }
 }
