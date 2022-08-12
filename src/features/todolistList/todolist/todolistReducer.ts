@@ -22,7 +22,7 @@ export const getTodolistsTC = createAsyncThunk('todolist/getTodolistTC', async (
         }
     } catch (e: any) {
         thunkAPI.dispatch(loadingErrorAC({loading: true}))
-        handleServerNetworkError(e, thunkAPI.dispatch)
+       return  handleServerNetworkError(e, thunkAPI.dispatch)
     } finally {
         thunkAPI.dispatch(changeProcessAC({process: false}))
     }
@@ -43,7 +43,7 @@ export const removeTodolistTC = createAsyncThunk('todolist/removeTodolistTC', as
             handleServerAppError(data.data, thunkAPI.dispatch)
         }
     } catch (e: any) {
-        handleServerNetworkError(e, thunkAPI.dispatch)
+       return handleServerNetworkError(e, thunkAPI.dispatch)
     } finally {
         thunkAPI.dispatch(changeProcessAC({process: false}))
     }
@@ -60,7 +60,7 @@ export const addTodolistsTC = createAsyncThunk('todolist/addTodolistsTC', async 
             handleServerAppError(data.data, thunkAPI.dispatch)
         }
     } catch (e: any) {
-        handleServerNetworkError(e, thunkAPI.dispatch)
+       return  handleServerNetworkError(e, thunkAPI.dispatch)
     } finally {
         thunkAPI.dispatch(changeProcessAC({process: false}))
     }
@@ -85,7 +85,7 @@ export const updateTodolistTC = createAsyncThunk('todolist/updateTodolistTC', as
             handleServerAppError(data.data, thunkAPI.dispatch)
         }
     } catch (e: any) {
-        handleServerNetworkError(e, thunkAPI.dispatch)
+       return handleServerNetworkError(e, thunkAPI.dispatch)
     } finally {
         thunkAPI.dispatch(changeProcessAC({process: false}))
     }

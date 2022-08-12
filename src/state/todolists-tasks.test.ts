@@ -1,4 +1,4 @@
- import {addTodolistAC, todolistReducer} from "../features/todolistList/todolist/todolistReducer";
+ import { todolistReducer} from "../features/todolistList/todolist/todolistReducer";
 // import {taskReducer} from "./TaskReducer";
 // import {TaskType} from "../API/TasksApi";
 //
