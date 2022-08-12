@@ -2,67 +2,75 @@ import {PayLoadType, tasksAPI, TaskType} from "../../../../API/TasksApi";
 import {StateAppType} from "../../../../state/redux-store";
 import {changeProcessAC, loadingErrorAC, setErrAC} from "../../../../app/AppReducer";
 import {handleServerAppError, handleServerNetworkError} from "../../../../components/ErrorSnackBar/HandleError";
-import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 
 
 let initialTaskState = {tasks: [] as Array<TaskType>}
-export const getTaskTC = createAsyncThunk('task/getTaskTC', (todolistId: string, thunkAPI) => {
+export const getTaskTC = createAsyncThunk('task/getTaskTC', async (todolistId: string, thunkAPI) => {
     thunkAPI.dispatch(changeProcessAC({process: true}))
-    tasksAPI.getTasks(todolistId)
-        .then((data) => {
-            if (data.data.items) {
-                thunkAPI.dispatch(getTaskAC({data: data.data.items}))
-            } else {
-                alert(data.data.error)
-            }
-
-        })
-        .catch((e) => {
-                handleServerNetworkError(e, thunkAPI.dispatch)
-            }
-        )
-        .finally(() => thunkAPI.dispatch(changeProcessAC({process: false})))
+    try {
+        const data = await tasksAPI.getTasks(todolistId)
+        if (data.data.items) {
+            // thunkAPI.dispatch(getTaskAC({data: data.data.items}))
+            return {data: data.data.items}
+        } else {
+            alert(data.data.error)
+        }
+    } catch (e: any) {
+        handleServerNetworkError(e, thunkAPI.dispatch)
+    } finally {
+        thunkAPI.dispatch(changeProcessAC({process: false}))
+    }
 })
-export const addTaskTC = createAsyncThunk('task/addTaskTC', (arg: { title: string, todolistId: string }, thunkAPI) => {
+export const addTaskTC = createAsyncThunk('task/addTaskTC', async (arg: { title: string, todolistId: string }, thunkAPI) => {
     thunkAPI.dispatch(changeProcessAC({process: true}))
-    tasksAPI.createTasks(arg.title, arg.todolistId)
-        .then((items) => {
-                if (items.data.resultCode === 0) {
-                    thunkAPI.dispatch(addTaskAC({item: items.data.data.item, todolistId: arg.todolistId}))
-                    thunkAPI.dispatch(loadingErrorAC({loading: true}))
-                    thunkAPI.dispatch(setErrAC({error: 'Successfully'}))
-                } else {
-                    handleServerAppError(items.data, thunkAPI.dispatch)
-                }
-            }
-        )
-        .catch(e => {
-                handleServerNetworkError(e, thunkAPI.dispatch)
-            }
-        )
-        .finally(() => thunkAPI.dispatch(changeProcessAC({process: false})))
+    try {
+        const res = await tasksAPI.createTasks(arg.title, arg.todolistId)
+        if (res.data.resultCode === 0) {
+            //thunkAPI.dispatch(addTaskAC({item: items.data.data.item, todolistId: arg.todolistId}))
+            thunkAPI.dispatch(loadingErrorAC({loading: true}))
+            thunkAPI.dispatch(setErrAC({error: 'Successfully'}))
+            return {item: res.data.data.item, todolistId: arg.todolistId}
+        } else {
+            handleServerAppError(res.data, thunkAPI.dispatch)
+        }
+    } catch (e: any) {
+        handleServerNetworkError(e, thunkAPI.dispatch)
+    } finally {
+        thunkAPI.dispatch(changeProcessAC({process: false}))
+    }
 })
-export const removeTaskTC = createAsyncThunk('task/removeTaskTC', (arg: { todolistId: string, taskId: string }, thunkAPI) => {
+export const removeTaskTC = createAsyncThunk('task/removeTaskTC', async (arg: { todolistId: string, taskId: string }, thunkAPI) => {
     thunkAPI.dispatch(changeProcessAC({process: true}))
-    thunkAPI.dispatch(updateTaskAC({taskId: arg.taskId, payLoad: {isDisabledTask: true}, todolistId: arg.todolistId}))
-    tasksAPI.deleteTasks(arg.todolistId, arg.taskId)
-        .then((res) => {
-                if (res.data.resultCode === 0) {
-                    thunkAPI.dispatch(removeTaskAC({id: arg.taskId, todolistId: arg.todolistId}))
-                    thunkAPI.dispatch(loadingErrorAC({loading: true}))
-                    thunkAPI.dispatch(setErrAC({error: 'Successfully'}))
-                } else {
-                    handleServerAppError(res.data, thunkAPI.dispatch)
-                }
-            }
-        )
-        .catch(e => {
-                handleServerNetworkError(e, thunkAPI.dispatch)
-            }
-        )
-        .finally(() => thunkAPI.dispatch(changeProcessAC({process: false})))
+    thunkAPI.dispatch(updateTaskTC.fulfilled({
+        taskId: arg.taskId,
+        payLoad: {isDisabledTask: true},
+        todolistId: arg.todolistId
+    }, '', {
+        taskId: arg.taskId,
+        item: {isDisabledTask: true},
+        todolistId: arg.todolistId
+    }))
+    try {
+        const res = await tasksAPI.deleteTasks(arg.todolistId, arg.taskId)
+        if (res.data.resultCode === 0) {
+            // thunkAPI.dispatch(removeTaskAC({
+            //     id: arg.taskId,
+            //     todolistId: arg.todolistId
+            // }))
+            thunkAPI.dispatch(loadingErrorAC({loading: true}))
+            thunkAPI.dispatch(setErrAC({error: 'Successfully'}))
+            return {id: arg.taskId, todolistId: arg.todolistId}
+        } else {
+            handleServerAppError(res.data, thunkAPI.dispatch)
+        }
+    } catch (e: any) {
+        handleServerNetworkError(e, thunkAPI.dispatch)
+    } finally {
+        thunkAPI.dispatch(changeProcessAC({process: false}))
+    }
 })
-export const updateTaskTC = createAsyncThunk('task/updateTaskTC', (arg: { taskId: string, item: PayLoadType, todolistId: string }, thunkAPI) => {
+export const updateTaskTC = createAsyncThunk('task/updateTaskTC', async (arg: { taskId: string, item: PayLoadType, todolistId: string }, thunkAPI) => {
     const state = thunkAPI.getState() as StateAppType
     const newTask = state.tasks.tasks.find(item => item.id === arg.taskId)
     if (!newTask) return
@@ -75,54 +83,56 @@ export const updateTaskTC = createAsyncThunk('task/updateTaskTC', (arg: { taskId
         deadline: newTask.deadline,
         isDisabledTask: newTask.isDisabledTask, ...arg.item
     } as PayLoadType
-    thunkAPI.dispatch(updateTaskAC({taskId: arg.taskId, payLoad: {isDisabledTask: true}, todolistId: arg.todolistId}))
+    thunkAPI.dispatch(updateTaskTC.fulfilled({
+        taskId: arg.taskId,
+        payLoad: {isDisabledTask: true},
+        todolistId: arg.todolistId
+    }, '', {taskId: arg.taskId, todolistId: arg.todolistId, item: {isDisabledTask: true}}))
     thunkAPI.dispatch(changeProcessAC({process: true}))
-    tasksAPI.updateTask(arg.taskId, payLoad, arg.todolistId)
-        .then((res) => {
-                if (res.data.resultCode === 0) {
-                    thunkAPI.dispatch(updateTaskAC({taskId: arg.taskId, payLoad, todolistId: arg.todolistId}))
-                } else {
-                    handleServerAppError(res.data, thunkAPI.dispatch)
-                    thunkAPI.dispatch(updateTaskAC({
-                        taskId: arg.taskId,
-                        payLoad: {isDisabledTask: false},
-                        todolistId: arg.todolistId
-                    }))
-                }
-            }
-        )
-        .catch(e => {
-                handleServerNetworkError(e, thunkAPI.dispatch)
-            }
-        )
-        .finally(() => thunkAPI.dispatch(changeProcessAC({process: false})))
+    try {
+        const res = await tasksAPI.updateTask(arg.taskId, payLoad, arg.todolistId)
+        if (res.data.resultCode === 0) {
+            return {taskId: arg.taskId, payLoad, todolistId: arg.todolistId}
+        } else {
+            handleServerAppError(res.data, thunkAPI.dispatch)
+            thunkAPI.dispatch(updateTaskTC.fulfilled({
+                taskId: arg.taskId,
+                payLoad: {isDisabledTask: false},
+                todolistId: arg.todolistId
+            }, '', {taskId: arg.taskId, item: {isDisabledTask: false}, todolistId: arg.todolistId}))
+        }
+    } catch (e: any) {
+        handleServerNetworkError(e, thunkAPI.dispatch)
+    } finally {
+        thunkAPI.dispatch(changeProcessAC({process: false}))
+    }
 })
 const slice = createSlice({
     name: 'task',
     initialState: initialTaskState,
-    reducers: {
-        removeTaskAC(state, action: PayloadAction<{ id: string, todolistId: string }>) {
-            const index = state.tasks.findIndex(item => item.id === action.payload.id)
+    reducers: {},
+    extraReducers: (builder) => {
+        builder.addCase(getTaskTC.fulfilled, (state, action) => {
+            action.payload && state.tasks.push(...action.payload.data)
+        });
+        builder.addCase(addTaskTC.fulfilled, (state, action) => {
+            action.payload && state.tasks.push(action.payload.item)
+        });
+        builder.addCase(removeTaskTC.fulfilled, (state, action) => {
+            const index = state.tasks.findIndex(item => action.payload && item.id === action.payload.id)
             if (index > -1) {
                 state.tasks.splice(index, 1)
             }
-        },
-        getTaskAC(state, action: PayloadAction<{ data: TaskType[] }>) {
-            state.tasks.push(...action.payload.data)
-        },
-        addTaskAC(state, action: PayloadAction<{ item: TaskType, todolistId: string }>) {
-            state.tasks.push(action.payload.item)
-        },
-        updateTaskAC(state, action: PayloadAction<{ taskId: string, payLoad: PayLoadType, todolistId: string }>) {
-            const index = state.tasks.findIndex(item => item.id === action.payload.taskId)
+        });
+        builder.addCase(updateTaskTC.fulfilled, (state, action) => {
+            const index = state.tasks.findIndex(item => action.payload && item.id === action.payload.taskId)
             if (index > -1) {
-                state.tasks[index] = {...state.tasks[index], ...action.payload.payLoad}
+                state.tasks[index] = {...state.tasks[index], ...action.payload && action.payload.payLoad}
             }
-        }
+        });
     }
 })
 export const taskReducer = slice.reducer
-export const {removeTaskAC, getTaskAC, addTaskAC, updateTaskAC} = slice.actions
 
 // export const updateTaskTC = (taskId: string, item: PayLoadType, todolistId: string) =>
 //     (dispatch: Dispatch, getState: () => StateAppType) => {
