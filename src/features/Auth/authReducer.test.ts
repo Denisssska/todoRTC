@@ -1,4 +1,4 @@
-import {authReducer, changeAuthAC, getMeAuthAC} from "./Auth-reducer";
+import {authReducer, getDataTC, logOutTC} from "./Auth-reducer";
 import {AuthDataType} from "../../API/AuthApi";
 
 const startState = {
@@ -8,19 +8,23 @@ const startState = {
 const data = {
     id: 1,
     email: "test@test",
-    login: 'login'
+    login: 'login',
+    captcha:''
 }
 
 test('change authMe', () => {
-    const endState = authReducer(startState, getMeAuthAC({data, isAuth: true}));
+    const endState = authReducer(startState, getDataTC.fulfilled({data, isAuth: true},''));
     expect(endState.data.id).toBe(1)
     expect(endState.isAuth).toBe(true)
     expect(endState.data.login).toBe('login')
     expect(endState).not.toBe(startState)
 })
-test('change auth', () => {
-    const endState = authReducer(startState, changeAuthAC({isAuth: true}));
-    expect(endState.isAuth).toBe(true)
+test('logOut', () => {
+    const endState = authReducer(startState, logOutTC.fulfilled({data: {login: null,id: null,email: null,captcha: null},isAuth: false},''));
+    expect(endState.data.id).toBe(null)
+    expect(endState.isAuth).toBe(false)
+    expect(endState.data.login).toBe(null)
     expect(endState).not.toBe(startState)
 })
+
 

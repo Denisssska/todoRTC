@@ -14,11 +14,14 @@ export type PayLoadTodolistType = {
     isDisabled?: boolean
     filter?: FilterValuesType
 }
+export type FieldErrorType = {
+    field: string, error: string
+}
 export type ResponseType<D = {}> = {
     data: D
     resultCode: number
     messages: Array<string>
-    fieldsErrors?: Array<string>
+    // fieldsErrors?: Array<FieldErrorType>
 }
 export const instance = axios.create({
     withCredentials: true,

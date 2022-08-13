@@ -9,13 +9,17 @@ import Button from "@mui/material/Button";
 import {Navigate} from "react-router-dom";
 
 export const FormLogin = () => {
+    const captcha = useAppSelector(state => state.auth.data.captcha)
     const isAuth = useAppSelector(state => state.auth.isAuth)
     const dispatch = useAppDispatch()
+    console.log(captcha)
     const formik = useFormik({
+
         initialValues: {
             email: '',
             password: '',
-            rememberMe: false
+            rememberMe: false,
+            captcha: ''
         },
         validate: (values) => {
             if (!values.email)
@@ -26,17 +30,32 @@ export const FormLogin = () => {
                 return {
                     password: 'invalid password'
                 }
+            // if(!values.captcha)return {captcha:'invalid captcha'}
         },
-        onSubmit: (values: AuthPayload) => {
-
-            console.log(JSON.stringify(values))
-            dispatch(loginTC({...values}))
+        onSubmit: async (values: AuthPayload) => {
+            await dispatch(loginTC({...values}))
+            // @ts-ignore
+            // formikHelpers.setFieldError('some',res.payload.errors[0])
+            // @ts-ignore
+            // formikErrors.setErrors(res.payload.errors[0])
+            console.log(res)
+            // if(loginTC.rejected.match(res)){
+            //     // @ts-ignore
+            //     if(res.payload?.errors?.length){
+            //         // console.log(res.payload)
+            //         // @ts-ignore
+            //         const error1 = res.payload.errors[0];
+            //         formikHelpers.setFieldError(error1,error1)
+            //     }
+            //
+            // }
         },
     });
     console.log(isAuth)
     if (isAuth) return <Navigate to={'/'}/>
     return (
         <Grid container justifyContent={"center"}>
+
             <Grid item xs={4}>
                 <form style={{
                     alignItems: 'center',
@@ -61,7 +80,18 @@ export const FormLogin = () => {
                                     type="password"
                                     {...formik.getFieldProps('password')}
                                 />
-
+                                {captcha && <div>
+                                    <img src={captcha} alt=""/>
+                                    <TextField
+                                        margin={'normal'}
+                                        label={'captcha'}
+                                        helperText={formik.errors.captcha}
+                                        // error={!!formik.errors.captcha}
+                                        type="captcha"
+                                        {...formik.getFieldProps('captcha')}
+                                    />
+                                </div>
+                                }
                                 <FormControlLabel
                                     label={'remember me'}
                                     control={<Checkbox {...formik.getFieldProps('rememberMe')}  />}/>
@@ -71,6 +101,7 @@ export const FormLogin = () => {
                     </FormControl>
                 </form>
             </Grid>
+
         </Grid>
 
     );

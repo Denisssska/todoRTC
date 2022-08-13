@@ -11,16 +11,15 @@ import {getDataTC} from "../features/Auth/Auth-reducer";
 import load from '../img/load.gif';
 
 export const App = () => {
-    const initializedApp = useAppSelector(state =>state.application.initializedApp)
-
+    const initializedApp = useAppSelector(state => state.application.initializedApp)
     const dispatch = useAppDispatch();
     useEffect(() => {
-        setTimeout(()=>{
+        setTimeout(() => {
             dispatch(getDataTC())
-        },2000)
+        }, 2000)
     }, [])
     const process = useAppSelector(state => state.application.process)
-if(!initializedApp)return <div style={{margin:'20% 45%'}}><img src={load} alt=""/></div>
+    if (!initializedApp) return <div style={{margin: '20% 45%'}}><img src={load} alt=""/></div>
     return (
         <div style={{width: '100%'}}>
             <ButtonAppBar/>
@@ -28,7 +27,7 @@ if(!initializedApp)return <div style={{margin:'20% 45%'}}><img src={load} alt=""
             <div className="App">
                 <PositionedSnackbar/>
                 <Routes>
-                    <Route  path={'/'} element={<SimplePaper/>}/>
+                    <Route path={'/'} element={<SimplePaper/>}/>
                     <Route path={'/login'} element={<FormLogin/>}/>
                 </Routes>
             </div>
