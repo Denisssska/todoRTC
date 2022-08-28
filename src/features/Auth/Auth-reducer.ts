@@ -4,17 +4,18 @@ import {changeInitializedAC, changeProcessAC, loadingErrorAC, setErrAC} from "..
 import {handleServerAppError, handleServerNetworkError} from "../../components/ErrorSnackBar/HandleError";
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {AxiosError} from "axios";
+import {FieldErrorType} from "../../API/TodolistApi";
+import {changeStateAC} from "../todolistList/todolist/todolistReducer";
 
 const initialState = {
     data: {} as AuthDataType,
     isAuth: false
 }
-//<{data: AuthDataType, isAuth: boolean},void,{rejectValue:{errors:Array<string>,fieldsErrors?:Array<FieldErrorType>}}>
 export const getDataTC = createAsyncThunk('auth/getDataTC', async (arg, thunkAPI) => {
     try {
         thunkAPI.dispatch(changeInitializedAC({initialized: true}))
         const data = await authApi.getMeAuth()
-        //console.log(data.data.data)
+
         if (data.data.resultCode === 0) {
             return {data: data.data.data as AuthDataType, isAuth: true}
         } else {
@@ -27,9 +28,8 @@ export const getDataTC = createAsyncThunk('auth/getDataTC', async (arg, thunkAPI
         thunkAPI.dispatch(changeProcessAC({process: false}))
     }
 })
-export const loginTC = createAsyncThunk('auth/loginTC', async (payLoad: AuthPayload, thunkAPI) => {
+export const loginTC = createAsyncThunk<{}, AuthPayload, { rejectValue: { errors: Array<string>, fieldsErrors?: Array<FieldErrorType> } }>('auth/loginTC', async (payLoad: AuthPayload, thunkAPI) => {
     thunkAPI.dispatch(changeProcessAC({process: true}))
-    // thunkAPI.dispatch(changeInitializedAC({initialized: false}))
     try {
         const data = await authApi.loginUser(payLoad)
         if (data.data.resultCode === 0) {
@@ -37,20 +37,15 @@ export const loginTC = createAsyncThunk('auth/loginTC', async (payLoad: AuthPayl
             thunkAPI.dispatch(loadingErrorAC({loading: true}))
             thunkAPI.dispatch(setErrAC({error: 'Successfully'}))
         } else if (data.data.resultCode === 10) {
-            //console.log(data.data.data)
             thunkAPI.dispatch(getCaptchaTC())
-            // const captcha = await securityApi.getCaptcha()
-            // thunkAPI.dispatch(loadingErrorAC({loading: true}))
-
-            //return captcha.data.url
-
-        } else {
+        } else if (data.data.resultCode === 1) {
             handleServerAppError(data.data, thunkAPI.dispatch)
             return thunkAPI.rejectWithValue({errors: data.data.messages})
         }
     } catch (err) {
         // @ts-ignore
         const e: AxiosError = err
+
         handleServerNetworkError(err, thunkAPI.dispatch)
         return thunkAPI.rejectWithValue({errors: [e.message], fieldsErrors: undefined})
     } finally {
@@ -60,6 +55,7 @@ export const loginTC = createAsyncThunk('auth/loginTC', async (payLoad: AuthPayl
 })
 export const logOutTC = createAsyncThunk('auth/logOutTC', async (arg, thunkAPI) => {
     thunkAPI.dispatch(changeProcessAC({process: true}))
+    thunkAPI.dispatch(changeStateAC())
     try {
         const data = await authApi.logOut()
         if (data.data.resultCode === 0) {
@@ -80,8 +76,6 @@ export const getCaptchaTC = createAsyncThunk('auth/getCaptchaTC', async (arg, th
         console.log(data)
         thunkAPI.dispatch(loadingErrorAC({loading: true}))
         thunkAPI.dispatch(setErrAC({error: 'Enter captcha please'}))
-        // thunkAPI.dispatch(loadingErrorAC({loading: true}))
-        // thunkAPI.dispatch(setErrAC({error: 'Successfully'}))
         return {data: {captcha: data.data.url}, isAuth: false}
 
     } catch (e) {

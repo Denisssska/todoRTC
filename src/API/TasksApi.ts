@@ -7,7 +7,6 @@ export type ResponseType<D = {}> = {
     fieldsErrors: Array<string>
 }
 
-
 type GetTaskType = {
     error: string | null
     totalCount: number

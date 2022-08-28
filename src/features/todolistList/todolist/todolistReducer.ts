@@ -10,7 +10,7 @@ const initialState = {
 }
 export const getTodolistsTC = createAsyncThunk('todolist/getTodolistTC', async (arg, thunkAPI) => {
     thunkAPI.dispatch(changeProcessAC({process: true}))
-    thunkAPI.dispatch(changeStateAC())
+
     try {
         const data = await todolistAPI.getTodolists()
         if (data.data) {

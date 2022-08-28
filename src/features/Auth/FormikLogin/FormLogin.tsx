@@ -1,5 +1,5 @@
 import React from 'react';
-import {useFormik} from "formik";
+import {FormikHelpers, useFormik} from "formik";
 import {AuthPayload} from "../../../API/AuthApi";
 import {useAppDispatch, useAppSelector} from "../../../hooks/hooks";
 import {loginTC} from "../Auth-reducer";
@@ -30,28 +30,18 @@ export const FormLogin = () => {
                 return {
                     password: 'invalid password'
                 }
-            // if(!values.captcha)return {captcha:'invalid captcha'}
         },
-        onSubmit: async (values: AuthPayload) => {
-            await dispatch(loginTC({...values}))
-            // @ts-ignore
-            // formikHelpers.setFieldError('some',res.payload.errors[0])
-            // @ts-ignore
-            // formikErrors.setErrors(res.payload.errors[0])
-            console.log(res)
-            // if(loginTC.rejected.match(res)){
-            //     // @ts-ignore
-            //     if(res.payload?.errors?.length){
-            //         // console.log(res.payload)
-            //         // @ts-ignore
-            //         const error1 = res.payload.errors[0];
-            //         formikHelpers.setFieldError(error1,error1)
-            //     }
-            //
-            // }
+        onSubmit: async (values: AuthPayload, formikHelpers: FormikHelpers<AuthPayload>) => {
+            const result = await dispatch(loginTC({...values}))
+
+            if (loginTC.rejected.match(result)) {
+                if (result.payload) {
+                    const error1 = result.payload.errors[0];
+                    formikHelpers.setFieldError("email", error1)
+                }
+            }
         },
     });
-    console.log(isAuth)
     if (isAuth) return <Navigate to={'/'}/>
     return (
         <Grid container justifyContent={"center"}>

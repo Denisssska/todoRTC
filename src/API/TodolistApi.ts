@@ -21,7 +21,7 @@ export type ResponseType<D = {}> = {
     data: D
     resultCode: number
     messages: Array<string>
-    // fieldsErrors?: Array<FieldErrorType>
+    fieldsErrors: Array<string>
 }
 export const instance = axios.create({
     withCredentials: true,

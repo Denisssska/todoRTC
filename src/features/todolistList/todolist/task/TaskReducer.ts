@@ -107,6 +107,9 @@ const slice = createSlice({
         builder.addCase(getTaskTC.fulfilled, (state, action) => {
             action.payload && state.tasks.push(...action.payload.data)
         });
+        builder.addCase(changeProcessAC, (state) => {
+            state.tasks = []
+        });
         builder.addCase(addTaskTC.fulfilled, (state, action) => {
             action.payload && state.tasks.push(action.payload.item)
         });

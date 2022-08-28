@@ -16,7 +16,7 @@ export type AuthPayload = {
     email: string
     password: string
     rememberMe: boolean
-    captcha?: string
+    captcha: string
 }
 
 export const authApi = {
